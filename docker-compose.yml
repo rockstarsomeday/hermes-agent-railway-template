@@ -1,0 +1,21 @@
+services:
+  hermes:
+    build: .
+    image: hermes-agent-railway-template:local
+    command: ["gateway", "run"]
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:${PORT:-8080}"
+    environment:
+      PORT: ${PORT:-8080}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-change-me}
+      HERMES_DASHBOARD_BASIC_AUTH_SECRET: ${HERMES_DASHBOARD_BASIC_AUTH_SECRET:-}
+    volumes:
+      - ./data:/data
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:${PORT:-8080}/api/status"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
