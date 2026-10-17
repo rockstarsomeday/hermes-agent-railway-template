@@ -43,7 +43,7 @@ Everything under `/opt/data` survives redeploys. Old `/data/...` paths are symli
 
 ## Upgrading
 
-- **Hermes:** change the tag in `Dockerfile` after reading the [release notes](https://github.com/NousResearch/hermes-agent/releases). Never use `latest`.
+- **Hermes:** change the tag and digest in `Dockerfile` after reading the [release notes](https://github.com/NousResearch/hermes-agent/releases). Never use `latest`.
 - **WebUI:** change `HERMES_WEBUI_COMMIT` and `HERMES_WEBUI_VERSION` to a release commit.
 
 Any push to `main` redeploys the service.

@@ -1,6 +1,6 @@
 # Official Hermes image. Bump deliberately (tag + digest) after reading the
 # upstream release notes.
-FROM nousresearch/hermes-agent:v2026.9.24
+FROM nousresearch/hermes-agent:v2026.9.24@sha256:fca358f12efd65bfaaca05884166f15c0e2788375ca30d77061ac1ebc96452b7
 
 # Hermes WebUI (https://github.com/nesquena/hermes-webui) runs in this same
 # container so it shares HERMES_HOME (sessions, memory, skills, config) with
