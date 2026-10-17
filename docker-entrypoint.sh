@@ -27,10 +27,20 @@ migrate() {
     fi
     for p in "$OLD"/* "$OLD"/.[!.]* "$OLD"/..?*; do
         [ -e "$p" ] || [ -L "$p" ] || continue
-        if [ -e "$DATA/${p##*/}" ] || [ -L "$DATA/${p##*/}" ]; then
-            log "name clash: $DATA/${p##*/} already exists; skipping migration"
-            return 1
+        name=${p##*/}
+        [ -e "$DATA/$name" ] || [ -L "$DATA/$name" ] || continue
+        # workspace exists in both (agent's and WebUI's): merge if no name overlaps.
+        if [ "$name" = workspace ] && [ -d "$p" ] && [ ! -L "$p" ] && [ -d "$DATA/workspace" ] && [ ! -L "$DATA/workspace" ]; then
+            overlap=$(cd "$p" && for f in * .[!.]* ..?*; do [ -e "$f" ] || [ -L "$f" ] || continue; [ -e "$DATA/workspace/$f" ] || [ -L "$DATA/workspace/$f" ] && echo "$f"; done)
+            if [ -z "$overlap" ]; then
+                continue
+            fi
+            log "workspace merge blocked; both contain: $(echo "$overlap" | tr '\n' ' ')"
+        else
+            log "name clash: $DATA/$name already exists"
         fi
+        log "skipping migration"
+        return 1
     done
     before=$(find "$OLD" -mindepth 1 | wc -l)
     backup="$DATA/.migration-backup-$(date -u +%Y%m%dT%H%M%SZ).tar"
@@ -41,14 +51,23 @@ migrate() {
     fi
     log "backup written: $backup ($(du -sh "$backup" | cut -f1))"
     moved=""
+    restore() {
+        log "move failed at $1; restoring"
+        for n in $moved; do mv "$DATA/$n" "$OLD/$n" || log "RESTORE FAILED for $n (backup: $backup)"; done
+    }
     for p in "$OLD"/* "$OLD"/.[!.]* "$OLD"/..?*; do
         [ -e "$p" ] || [ -L "$p" ] || continue
         name=${p##*/}
-        if ! mv "$p" "$DATA/$name"; then
-            log "move failed at $name; restoring"
-            for n in $moved; do mv "$DATA/$n" "$OLD/$n" || log "RESTORE FAILED for $n (backup: $backup)"; done
-            return 1
+        if [ "$name" = workspace ] && [ -d "$DATA/workspace" ]; then
+            for c in "$p"/* "$p"/.[!.]* "$p"/..?*; do
+                [ -e "$c" ] || [ -L "$c" ] || continue
+                if ! mv "$c" "$DATA/workspace/"; then restore "workspace/${c##*/}"; return 1; fi
+                moved="$moved workspace/${c##*/}"
+            done
+            rmdir "$p"
+            continue
         fi
+        if ! mv "$p" "$DATA/$name"; then restore "$name"; return 1; fi
         moved="$moved $name"
     done
     rmdir "$OLD"
