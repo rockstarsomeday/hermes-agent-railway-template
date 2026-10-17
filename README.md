@@ -64,6 +64,15 @@ Provider credentials, messaging channels, models, skills, profiles, and gateway 
 | `HERMES_WEBUI_PASSWORD` | `ADMIN_PASSWORD` | Login password |
 | `HERMES_WEBUI_REF` (build arg) | `v0.52.458` | Pinned WebUI release |
 
+### Public hostnames (Cloudflare tunnel)
+
+Both sit behind the same Cloudflare Access app.
+
+| Hostname | Service | Points to |
+|---|---|---|
+| `hermes.chrisvis.com` | Hermes WebUI (Hermex connects here) | `hermes-agent.railway.internal:8787` |
+| `hermesadmin.chrisvis.com` | Hermes dashboard | `hermes-agent.railway.internal:8080` |
+
 ## Upgrading Hermes
 
 Update the pinned release and digest in `Dockerfile` deliberately after reviewing the upstream [release notes](https://github.com/NousResearch/hermes-agent/releases) and validating the new image. Do not use `latest`. Because the template remains GitHub-backed, merging an upgrade to the default branch notifies existing template consumers.
