@@ -1,17 +1,15 @@
-# Hermes Agent Railway Template
+# Hermes Agent on Railway
 
-## Architecture
+Thin wrapper around the official `nousresearch/hermes-agent` image. No app code here.
 
-Python/Starlette web server that wraps Hermes Agent's gateway as a managed subprocess.
+- `Dockerfile` — upstream image + Hermes WebUI (pinned commit) as an s6 service; old `/data` symlinks
+- `docker-entrypoint.sh` — maps `ADMIN_*` to dashboard auth, one-time `/data/.hermes` → `/opt/data` migration, then execs upstream `entrypoint-dispatch.sh`
+- `s6-rc.d/webui/` — WebUI run/finish scripts (port 8787)
+- `railway.toml` — start command, health check
 
-- `server.py` — Main server: HTTP handlers, gateway process manager, basic auth, .env file management
-- `templates/index.html` — Single-page UI with Tailwind CSS + Alpine.js
-- Config is stored as a flat `.env` file at `/data/.hermes/.env` (Hermes uses python-dotenv)
-- Gateway is spawned via `hermes gateway` command with env vars from the .env file
+## Rules
 
-## Key patterns
-
-- Gateway lifecycle: start/stop/restart via async subprocess, stdout captured to ring buffer
-- Secret masking: password fields show first 8 chars + `***`, merge on save preserves masked values
-- No direct Hermes Python imports — the server manages the .env file independently
-- Auto-start: gateway starts on server boot if any provider API key is configured
+- Keep upstream defaults (`HERMES_HOME=/opt/data`, volume at `/opt/data`). Upstream hardcodes `HOME=/opt/data`; don't move data elsewhere.
+- Pin versions (image tag, WebUI commit). Never `latest`.
+- Any push to `main` redeploys on Railway.
+- Never print or commit secrets (`ADMIN_PASSWORD`, API keys, `/opt/data/.env`).

@@ -10,9 +10,8 @@ services:
       PORT: ${PORT:-8080}
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-change-me}
-      HERMES_DASHBOARD_BASIC_AUTH_SECRET: ${HERMES_DASHBOARD_BASIC_AUTH_SECRET:-}
     volumes:
-      - ./data:/data
+      - ./data:/opt/data
     healthcheck:
       test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:${PORT:-8080}/api/status"]
       interval: 30s
