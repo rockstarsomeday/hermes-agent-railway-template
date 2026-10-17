@@ -26,7 +26,8 @@ ENV HERMES_HOME=/data/.hermes \
     HERMES_WEBUI_HOST=0.0.0.0 \
     HERMES_WEBUI_PORT=8787 \
     HERMES_WEBUI_STATE_DIR=/data/.hermes/webui \
-    HERMES_WEBUI_AGENT_DIR=/opt/hermes
+    HERMES_WEBUI_AGENT_DIR=/opt/hermes \
+    HERMES_WEBUI_DEFAULT_WORKSPACE=/data/workspace
 
 ENTRYPOINT ["/usr/local/bin/hermes-railway-entrypoint"]
 CMD ["gateway", "run"]

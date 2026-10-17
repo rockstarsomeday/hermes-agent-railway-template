@@ -10,8 +10,8 @@ case "${HERMES_WEBUI:-1}" in
 esac
 
 export HOME=/opt/data
-mkdir -p "${HERMES_WEBUI_STATE_DIR:-/data/.hermes/webui}"
-chown hermes:hermes "${HERMES_WEBUI_STATE_DIR:-/data/.hermes/webui}" 2>/dev/null || true
+mkdir -p "${HERMES_WEBUI_STATE_DIR:-/data/.hermes/webui}" "${HERMES_WEBUI_DEFAULT_WORKSPACE:-/data/workspace}"
+chown hermes:hermes "${HERMES_WEBUI_STATE_DIR:-/data/.hermes/webui}" "${HERMES_WEBUI_DEFAULT_WORKSPACE:-/data/workspace}" 2>/dev/null || true
 
 cd /opt/hermes-webui
 # shellcheck disable=SC1091
