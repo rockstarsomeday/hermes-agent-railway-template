@@ -1,0 +1,22 @@
+#!/command/with-contenv sh
+# shellcheck shell=sh
+# Hermes WebUI service (supervised by s6, restarts on crash).
+# Shares HERMES_HOME with the agent so sessions/memory/skills are the same.
+# Set HERMES_WEBUI=0 to disable.
+
+case "${HERMES_WEBUI:-1}" in
+    1|true|TRUE|True|yes|YES|Yes) ;;
+    *) exit 0 ;;
+esac
+
+export HOME=/opt/data
+mkdir -p "${HERMES_WEBUI_STATE_DIR:-/data/.hermes/webui}"
+chown hermes:hermes "${HERMES_WEBUI_STATE_DIR:-/data/.hermes/webui}" 2>/dev/null || true
+
+cd /opt/hermes-webui
+# shellcheck disable=SC1091
+. /opt/hermes/.venv/bin/activate
+export HERMES_WEBUI_PYTHON=/opt/hermes/.venv/bin/python
+
+[ "$(id -u)" = 0 ] || exec python server.py
+exec s6-setuidgid hermes python server.py

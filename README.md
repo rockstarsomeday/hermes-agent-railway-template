@@ -53,6 +53,17 @@ The entrypoint maps `PORT` to `HERMES_DASHBOARD_PORT` at runtime.
 
 Provider credentials, messaging channels, models, skills, profiles, and gateway state are managed through the official dashboard and persisted under `/data/.hermes`.
 
+## Hermes WebUI (port 8787)
+
+[Hermes WebUI](https://github.com/nesquena/hermes-webui) runs in the same container as an s6-supervised service, sharing `/data/.hermes` with the agent (Railway volumes can't be shared across services). It's what the Hermex iOS app connects to.
+
+| Variable | Default | Notes |
+|---|---|---|
+| `HERMES_WEBUI` | `1` | Set `0` to disable |
+| `HERMES_WEBUI_PORT` | `8787` | Reach privately at `hermes-agent.railway.internal:8787` |
+| `HERMES_WEBUI_PASSWORD` | `ADMIN_PASSWORD` | Login password |
+| `HERMES_WEBUI_REF` (build arg) | `v0.52.458` | Pinned WebUI release |
+
 ## Upgrading Hermes
 
 Update the pinned release and digest in `Dockerfile` deliberately after reviewing the upstream [release notes](https://github.com/NousResearch/hermes-agent/releases) and validating the new image. Do not use `latest`. Because the template remains GitHub-backed, merging an upgrade to the default branch notifies existing template consumers.

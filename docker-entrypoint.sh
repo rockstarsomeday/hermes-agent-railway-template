@@ -22,4 +22,7 @@ export HERMES_DASHBOARD_BASIC_AUTH_USERNAME="$dashboard_username"
 export HERMES_DASHBOARD_BASIC_AUTH_PASSWORD="$dashboard_password"
 export HERMES_DASHBOARD_BASIC_AUTH_SECRET="$dashboard_secret"
 
+# Hermes WebUI login defaults to the dashboard password unless overridden.
+export HERMES_WEBUI_PASSWORD="${HERMES_WEBUI_PASSWORD:-$dashboard_password}"
+
 exec /opt/hermes/docker/entrypoint-dispatch.sh "$@"

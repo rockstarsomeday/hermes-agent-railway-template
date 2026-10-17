@@ -1,0 +1,7 @@
+#!/command/with-contenv sh
+# shellcheck shell=sh
+# Exit 125 (permanent stop) when disabled so s6 doesn't restart-loop.
+case "${HERMES_WEBUI:-1}" in
+    1|true|TRUE|True|yes|YES|Yes) exit 0 ;;
+    *) exit 125 ;;
+esac
