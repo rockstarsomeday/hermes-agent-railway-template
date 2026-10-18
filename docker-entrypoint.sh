@@ -140,4 +140,30 @@ else
     log "could not prepare the sandbox SSH key; terminal.backend ssh will fail"
 fi
 
+# Hermes reads terminal settings only from config.yaml/.env, never from the
+# process env (upstream tools/terminal_scope.py). With terminal.backend: ssh,
+# copy any unset terminal.ssh_* values in from the TERMINAL_SSH_* variables.
+# Values already in config.yaml win. Never fatal.
+config="${HERMES_HOME:-$DATA}/config.yaml"
+if [ -f "$config" ]; then
+    missing=$(python - "$config" <<'EOF' 2>/dev/null || true
+import os, sys, yaml
+cfg = yaml.safe_load(open(sys.argv[1])) or {}
+t = cfg.get("terminal") or {}
+if str(t.get("backend", "")).strip().lower() == "ssh":
+    for k in ("ssh_host", "ssh_user", "ssh_port", "ssh_key"):
+        if not t.get(k) and os.environ.get("TERMINAL_" + k.upper()):
+            print(k)
+EOF
+)
+    for k in $missing; do
+        v=$(printenv "TERMINAL_$(echo "$k" | tr a-z A-Z)")
+        if hermes config set "terminal.$k" "$v" >/dev/null 2>&1; then
+            log "set terminal.$k in config.yaml"
+        else
+            log "could not set terminal.$k in config.yaml"
+        fi
+    done
+fi
+
 exec /opt/hermes/docker/entrypoint-dispatch.sh "$@"
