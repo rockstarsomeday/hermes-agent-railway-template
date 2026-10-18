@@ -125,4 +125,19 @@ export HERMES_DASHBOARD_BASIC_AUTH_SECRET="$dashboard_secret"
 # WebUI login defaults to the dashboard password.
 export HERMES_WEBUI_PASSWORD="${HERMES_WEBUI_PASSWORD:-$dashboard_password}"
 
+# Key for the SSH command sandbox (terminal.backend: ssh). Generated here on
+# first boot so the private key never leaves this volume; Hermes never syncs
+# ~/.ssh into the sandbox. Copy the logged public key into the sandbox
+# service's SANDBOX_AUTHORIZED_KEY variable.
+sandbox_key="$DATA/.ssh/hermes_sandbox_ed25519"
+# Never fatal: Hermes must still start if this fails.
+if { [ -f "$sandbox_key" ] || { mkdir -p "$DATA/.ssh" \
+        && ssh-keygen -q -t ed25519 -N '' -C hermes-agent@railway -f "$sandbox_key"; }; } \
+    && chown -R hermes:hermes "$DATA/.ssh" && chmod 700 "$DATA/.ssh" && chmod 600 "$sandbox_key"; then
+    log "sandbox public key: $(cat "$sandbox_key.pub" 2>/dev/null || echo missing)"
+    export TERMINAL_SSH_KEY="${TERMINAL_SSH_KEY:-$sandbox_key}"
+else
+    log "could not prepare the sandbox SSH key; terminal.backend ssh will fail"
+fi
+
 exec /opt/hermes/docker/entrypoint-dispatch.sh "$@"

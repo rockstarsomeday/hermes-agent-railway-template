@@ -1,6 +1,8 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
+# sandbox/ is its own service; changes there must not redeploy Hermes.
+watchPatterns = ["Dockerfile", "docker-entrypoint.sh", "s6-rc.d/**", "railway.toml"]
 
 [deploy]
 startCommand = "/usr/local/bin/hermes-railway-entrypoint gateway run"

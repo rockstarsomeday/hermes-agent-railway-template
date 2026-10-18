@@ -1,0 +1,11 @@
+version: 2
+updates:
+  # Hermes image (tag + digest). Read upstream release notes before merging.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: /sandbox
+    schedule:
+      interval: monthly
