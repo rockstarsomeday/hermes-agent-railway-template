@@ -125,4 +125,17 @@ export HERMES_DASHBOARD_BASIC_AUTH_SECRET="$dashboard_secret"
 # WebUI login defaults to the dashboard password.
 export HERMES_WEBUI_PASSWORD="${HERMES_WEBUI_PASSWORD:-$dashboard_password}"
 
+# Key for the SSH command sandbox (terminal.backend: ssh). Kept off the volume so
+# it is never among the files Hermes syncs into the sandbox.
+if [ -n "${HERMES_SANDBOX_SSH_KEY:-}" ]; then
+    key_dir=/run/hermes-sandbox
+    mkdir -p "$key_dir"
+    printf '%s\n' "$HERMES_SANDBOX_SSH_KEY" > "$key_dir/id_ed25519"
+    chown -R hermes:hermes "$key_dir"
+    chmod 700 "$key_dir"
+    chmod 600 "$key_dir/id_ed25519"
+    export TERMINAL_SSH_KEY="${TERMINAL_SSH_KEY:-$key_dir/id_ed25519}"
+    unset HERMES_SANDBOX_SSH_KEY
+fi
+
 exec /opt/hermes/docker/entrypoint-dispatch.sh "$@"
