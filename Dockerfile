@@ -5,9 +5,9 @@ FROM nousresearch/hermes-agent:v2026.9.24@sha256:fca358f12efd65bfaaca05884166f15
 # Hermes WebUI (https://github.com/nesquena/hermes-webui) runs in this same
 # container so it shares HERMES_HOME (sessions, memory, skills, config) with
 # the agent. Railway volumes cannot be mounted by two services.
-# Pinned by commit (v0.52.458).
-ARG HERMES_WEBUI_COMMIT=fd0141fa196fe832171c9c0551bbb8205b6412d4
-ARG HERMES_WEBUI_VERSION=0.52.458
+# Pinned by commit (v0.52.492).
+ARG HERMES_WEBUI_COMMIT=0700933a6717a954203ed13c66db9ba2164f05d2
+ARG HERMES_WEBUI_VERSION=0.52.492
 RUN mkdir /opt/hermes-webui && cd /opt/hermes-webui \
     && git init -q \
     && git fetch -q --depth 1 https://github.com/nesquena/hermes-webui "${HERMES_WEBUI_COMMIT}" \
