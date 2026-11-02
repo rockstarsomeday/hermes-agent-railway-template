@@ -9,3 +9,14 @@ updates:
     directory: /sandbox
     schedule:
       interval: monthly
+  # Agent browser. Chromium ships security fixes weekly; minor/patch bumps
+  # auto-merge (.github/workflows/browser-automerge.yml).
+  - package-ecosystem: docker
+    directory: /browser
+    schedule:
+      interval: weekly
+  # Keeps the pinned action in browser-automerge.yml current.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

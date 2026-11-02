@@ -6,6 +6,8 @@ Thin wrapper around the official `nousresearch/hermes-agent` image. No app code 
 - `docker-entrypoint.sh` — maps `ADMIN_*` to dashboard auth, one-time `/data/.hermes` → `/opt/data` migration, then execs upstream `entrypoint-dispatch.sh`
 - `s6-rc.d/webui/` — WebUI run/finish scripts (port 8787)
 - `railway.toml` — start command, health check
+- `sandbox/` — separate `hermes-sandbox` service (SSH command sandbox)
+- `browser/` — separate `hermes-browser` service (browserless Chromium the agent drives over CDP). Minor/patch Dependabot bumps auto-merge via `.github/workflows/browser-automerge.yml`
 
 ## Rules
 

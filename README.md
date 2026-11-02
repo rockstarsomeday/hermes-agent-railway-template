@@ -41,10 +41,20 @@ Everything under `/opt/data` survives redeploys. Old `/data/...` paths are symli
 | `hermes.chrisvis.com` | WebUI, `hermes-agent.railway.internal:8787` (Hermex connects here) |
 | `hermesadmin.chrisvis.com` | Dashboard, `hermes-agent.railway.internal:8080` |
 
+## Other services in this repo
+
+| Folder | Railway service | Notes |
+|---|---|---|
+| `sandbox/` | `hermes-sandbox` | SSH command sandbox (`terminal.backend: ssh`). Root dir `/sandbox`, watch `/sandbox/**`. |
+| `browser/` | `hermes-browser` | The agent's browser ([browserless](https://github.com/browserless/browserless) Chromium). Root dir `/browser`, watch `/browser/**`. Private network only; `hermes-agent` connects with `BROWSER_CDP_URL=ws://${{hermes-browser.RAILWAY_PRIVATE_DOMAIN}}:3000/chromium?token=${{hermes-browser.TOKEN}}`. Keeps the browser out of the Hermes container so it can't read `/opt/data`. |
+
+`hermes-browser` variables: `TOKEN` (random; changing it needs a `hermes-agent` redeploy), `HOST=::`, `PORT=3000`, `CONCURRENT`, `QUEUED`, `TIMEOUT`, and `DEBUG=browserless.io:*:info,browserless.io:*:warn,browserless.io:*:error` (the image's default debug level logs the whole environment, token included).
+
 ## Upgrading
 
 - **Hermes:** change the tag and digest in `Dockerfile` after reading the [release notes](https://github.com/NousResearch/hermes-agent/releases). Never use `latest`.
 - **WebUI:** change `HERMES_WEBUI_COMMIT` and `HERMES_WEBUI_VERSION` to a release commit.
+- **Browser:** Dependabot opens a bump weekly. Minor/patch bumps merge themselves (`.github/workflows/browser-automerge.yml`) so Chromium security fixes deploy without manual work; major bumps wait for review.
 
 Any push to `main` redeploys the service.
 
