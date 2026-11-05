@@ -166,4 +166,39 @@ EOF
     done
 fi
 
+# Hermes loads $HERMES_HOME/.env with override=True, so a key there beats the
+# Railway variable. For API_SERVER_KEY, make Railway the source of truth: copy
+# the variable into .env when it differs. Never prints the value. Never fatal.
+envfile="${HERMES_HOME:-$DATA}/.env"
+if [ -n "${API_SERVER_KEY:-}" ] && [ -f "$envfile" ]; then
+    result=$(python - "$envfile" <<'EOF' 2>/dev/null || echo error
+import os, sys
+path, want = sys.argv[1], os.environ["API_SERVER_KEY"]
+lines = open(path).read().splitlines()
+out, found, changed = [], False, False
+for line in lines:
+    if line.split("=", 1)[0].strip() == "API_SERVER_KEY":
+        found = True
+        if line.split("=", 1)[1].strip().strip("'\"") != want:
+            line, changed = "API_SERVER_KEY=" + want, True
+    out.append(line)
+if not found:
+    out.append("API_SERVER_KEY=" + want)
+    changed = True
+if changed:
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        f.write("\n".join(out) + "\n")
+    st = os.stat(path)
+    os.chmod(tmp, st.st_mode)
+    os.chown(tmp, st.st_uid, st.st_gid)
+    os.replace(tmp, path)
+    print("updated")
+else:
+    print("unchanged")
+EOF
+)
+    log "API_SERVER_KEY in .env: $result (from Railway variable)"
+fi
+
 exec /opt/hermes/docker/entrypoint-dispatch.sh "$@"
